@@ -12,5 +12,7 @@ Rails.application.routes.draw do
   match "checkout/pay", to: "orders#payment", as: "checkout_payment", via: [:get, :post]
   match "checkout/confirm", to: "orders#confirmation", as: "checkout_confirmation", via: [:get, :post]
 
+  get "checkout/paypal", to: "orders#paypal"
+
 
 end

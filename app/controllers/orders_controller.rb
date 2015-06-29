@@ -1,5 +1,7 @@
 class OrdersController < ApplicationController
 
+	before_filter(only: [:paypal, :payment]) { Shoppe::Paypal.setup_paypal }
+
 	def destroy
 	  current_order.destroy
 	  session[:order_id] = nil
@@ -18,12 +20,20 @@ class OrdersController < ApplicationController
 	def payment
   @order = Shoppe::Order.find(current_order)
 	  if request.post?
-	    if @order.accept_stripe_token(params[:stripe_token])
+	  	if params[:success] == "true" && params[:PayerID].present?
+ 			 @order.accept_paypal_payment(params[:paymentId], params[:token], params[:PayerID])
+	    elsif @order.accept_stripe_token(params[:stripe_token])
 	      redirect_to checkout_confirmation_path
 	    else
 	      flash.now[:notice] = "Could not exchange Stripe token. Please try again."
 	    end
 	  end
+	end
+
+	def paypal
+	  @order = Shoppe::Order.find(session[:current_order_id])
+	  url = @order.redirect_to_paypal(checkout_payment_url(success: true), checkout_payment_url(success: false))
+	  redirect_to url
 	end
 
 	def confirmation

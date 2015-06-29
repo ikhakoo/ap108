@@ -53,3 +53,4 @@ gem "shoppe", "1.0.5"
 
 gem "shoppe-stripe", require: "shoppe/stripe"
 
+
